@@ -12,17 +12,4 @@ This project is a real-time ETL pipeline that consumes GTFS-RT (General Transit 
 - **Dockerized Architecture:** Easily deployable with Docker Compose.
 - **Hosted on AWS EC2:** Cloud-hosted for scalability and availability.
 
-## 🏗 Architecture Overview
 
-```plaintext
-GTFS-RT Feeds
-     ↓
-Kafka Producer (Python)
-     ↓
-Kafka Topic
-     ↓
-Kafka Consumer (Python)
-     ↓
-MongoDB Atlas
-     ↓
-Flask API → Twilio Alerts
