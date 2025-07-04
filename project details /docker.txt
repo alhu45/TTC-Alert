@@ -1,0 +1,81 @@
+Docker packages your code so it can run on any machine 
+
+Images:
+- Tech needed 
+- Runtimes
+- Tools and instructions to run the code
+
+Containers:
+- Things to ship out to the consumer, all the images is packaged into a container 
+
+docker-compose.yml:
+- A configuration file that lets you define and run mutiple Docker containers within this file
+- It is similar to project manager for Docker
+
+What you need to create to use Docker
+
+
+                 ┌───────────────────────┐
+                 │     Docker Network     │
+                 │  (created by Compose)  │
+                 │                        │
+                 │   +----------------+   │
+User sends SMS ⇨ │   |  sms_server    |   │
+                 │   | (Flask App)    |   │
+                 │   +----------------+   │
+                 │           ⇩            │
+                 │       +--------+       │
+                 │       | MongoDB |       │
+                 │       +--------+       │
+                 │           ⇧            │
+                 │   +----------------+   │
+                 │   |    main.py     |   │
+                 │   |  (ETL Script)  |   │
+                 │   +----------------+   │
+                 │     ⇧           ⇩      │
+                 │ GTFS API     Kafka 🐳   │
+                 │               ⇧        │
+                 │           Zookeeper 🐳 │
+                 └────────────────────────┘
+
+
+| Component      | Description                                         | Docker Role                                |
+| ---------------| --------------------------------------------------- | ------------------------------------------ |
+| sms_server     | Flask server handling Twilio SMS webhooks           | Docker service                             |
+| main.py        | ETL pipeline that reads GTFS alerts → Kafka → Mongo | Docker service                             |
+| MongoDB        | NoSQL database storing alerts                       | Docker container (`mongo`)                 |
+| Kafka          | Real-time event broker                              | Docker container (`bitnami/kafka`)         |
+| Zookeeper      | Kafka needs this for coordination                   | Docker container (`bitnami/zookeeper`)     |
+| GTFS API       | External API (real-time TTC alerts)                 | External dependency (no container)         |
+| Docker Network | Automatically created by Docker Compose             | Lets all services communicate via hostname |
+
+TO RUN DOCKER: docker compose up --build
+
+What this does:
+--build: builds the Docker image from your Dockerfile
+up: starts all containers (main, sms_server, mongo, kafka, zookeeper)
+You’ll see logs for every container right in your terminal
+
+BONUS COMMANDS:
+
+| Command                           | Description                    |
+| --------------------------------- | ------------------------------ |
+| `docker ps`                       | Show running containers        |
+| `docker compose logs`             | Show logs from all services    |
+| `docker compose logs sms_server`  | Logs just from Flask app       |
+| `docker exec -it sms_server bash` | Open terminal inside container |
+| `docker images`                   | List built images              |
+| `docker compose restart`          | Restart all containers         |
+
+STOP DOCKER: docker compose down
+
+REBUILD IMAGE: docker compose build main
+
+CLEAN IMAGE: docker compose down -v
+
+COPY AND PASTE TO RUN EVERYTHING:
+
+docker compose down
+docker compose build main
+docker compose down -v
+docker compose up --build

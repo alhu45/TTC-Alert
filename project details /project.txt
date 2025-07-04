@@ -1,0 +1,56 @@
+Producers:
+
+The API getting the information about TTC that get events
+
+Topic:
+
+Bus Closures
+
+Subway Closures
+
+Consumers:
+
+Push to an ETL Pipeline:
+
+- Different databases to store the different 
+
+- Pushing out Notifications
+
+
+             [ TTC API Producer ]
+                       |
+              [Start Kafka Broker]                         ← Start Kafka Server
+        --------------------------------
+        |              |              |
+ [transit_alerts] [delay_updates] [construction_notices]   ← Kafka Topics
+        |              |              |
+        ↓              ↓              ↓
+ [Alert ETL]     [Delay ETL]    [Construction ETL]         ← Kafka Consumers (ETL)
+        ↓              ↓              ↓
+   MONGO DB       Notify Users     Store in S3/DB
+        ↓ 
+   Notify Users
+
+CHATGPT LINK TO PROJECT: https://chatgpt.com/c/6824d4f8-cf44-8013-a3c1-69f06f7f5270
+
+The Port for Kafka Ports:
+Think of 9092 as the front desk at an office — where clients walk in, ask questions, and drop off data.
+Think of 9093 as the server room at the back — where internal staff coordinate schedules, update records, and make sure everything is running.
+
+Twillio: NEHK6CTB7DLJT25LNT6HZKHX
+
+Currently:
+1. Manually run kafka server
+2. Create Topics
+3. Fetch data from GTFS TTC API
+4. Collect data from alerts and send to the consumer
+5. Sent to MONGODB: https://cloud.mongodb.com/v2/683dea16e85bc662df18b1b4#/metrics/replicaSet/683df8646d20906619e161f9/explorer
+6. Automatic new alerts every 10 seconds to see for new updates, deletes any old entires older than 10 seconds
+7. Use Twillio to send SMS Notifcaiton: https://console.twilio.com/us1/develop/phone-numbers/manage/incoming
+8. ngrok for backend to send message when "alert" is texted: https://dashboard.ngrok.com/get-started/your-authtoken
+9. Use Docker to containerize 
+
+TO DO:
+Kubernete
+AWS for backend server
+Terraform on Everyting

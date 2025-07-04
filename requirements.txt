@@ -1,0 +1,7 @@
+Flask
+pymongo
+python-dotenv
+twilio
+kafka-python
+protobuf
+gtfs-realtime-bindings

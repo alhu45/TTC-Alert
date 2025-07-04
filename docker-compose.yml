@@ -1,0 +1,70 @@
+# This section defines how each container is used in the app
+services:
+  sms_server:
+    build: .                       # Build from the Dockerfile in current directory
+    container_name: sms_server     # Container name (visible in Docker Desktop or CLI)
+    env_file: .env                 # Load env vars like MONGODB, TWILIO_SID, etc.
+    ports:
+      - "4000:4000"                # Expose Flask port 4000 on your machine
+    command: python sms_server.py # Override CMD in Dockerfile (run sms_server.py)
+    depends_on: 
+      - mongo                     # Start MongoDB first
+      - kafka                     # Wait for Kafka broker to start
+
+  # Fetches TTC GTFS alerts → sends to Kafka → reads from Kafka → saves to MongoDB and sends SMS.
+  main:
+    build: .
+    container_name: main_etl
+    env_file: .env
+    environment:
+      - PYTHONUNBUFFERED=1
+    depends_on:
+      kafka: 
+        condition: service_started
+      kafka-init:
+        condition: service_completed_successfully
+      mongo:
+        condition: service_started
+    command: ["python", "main.py"]
+
+  # Starts a MongoDB database that both Python scripts use.
+  mongo:
+    image: mongo                  # Use official MongoDB image
+    container_name: mongo 
+    ports:
+      - "27017:27017"             # Expose default MongoDB port
+
+  kafka:
+    image: bitnami/kafka:latest   # Use Bitnami Kafka image with KRaft mode (no Zookeeper)
+    container_name: kafka
+    ports:
+      - "9092:9092"               # Kafka listener port
+    environment:
+      - KAFKA_CFG_NODE_ID=1
+      - KAFKA_CFG_PROCESS_ROLES=controller,broker
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092  # Use service name so other containers can reach it
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_KRAFT_CLUSTER_ID=kraft-cluster-id                # Unique cluster ID
+      - ALLOW_PLAINTEXT_LISTENER=yes                           # Allow unencrypted access
+
+  kafka-init:
+    image: bitnami/kafka:latest     # Use Kafka image just for topic creation
+    container_name: kafka-init
+    depends_on:
+      - kafka                       # Wait until Kafka is started
+    entrypoint: ["/bin/bash", "-c"]
+    # Sleep for 30 seconds to allow Kafka to fully initialize before creating topics
+    command: >
+      "
+      echo '⏳ Waiting for Kafka to be ready...' &&
+      sleep 30 &&
+      echo 'Creating topics...' &&
+      kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic alerts --replication-factor 1 --partitions 20 &&
+      kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic vehicle --replication-factor 1 --partitions 20 &&
+      kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic trips --replication-factor 1 --partitions 20 &&
+      kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic nearby_routes --replication-factor 1 --partitions 20 &&
+      echo 'Topics created successfully.'
+      "
