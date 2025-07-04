@@ -1,0 +1,84 @@
+# AWS EC2 Deployment Guide for TTC Transit Alert System
+EC2:
+- A virtual server hosted on AWS
+- You connect to it using SSH
+- It stays online 24/7 to run your backend
+
+## STEP 1: Launch EC2 Instance
+- Go to AWS EC2 Console → Launch Instance
+- Name: ttc-backend-server
+- AMI: Ubuntu Server 22.04 LTS
+- Instance type: t3.medium (or t2.micro for free tier testing)
+- Key Pair: Create/download (e.g., ttc-keypair.pem)
+- Security Group: Add inbound rules:
+    - SSH (TCP 22) — Source: Your IP
+    - Custom TCP (Port 4000) — Source: 0.0.0.0/0
+    - HTTPS (Port 443) — Source: 0.0.0.0/0
+    - (Optional) HTTP (Port 80)
+
+## STEP 2: SSH Into EC2 Instance
+On your local machine:
+```bash
+chmod 400 /Users/alanhu/Desktop/ttc-keypair.pem
+ssh -i /Users/alanhu/Desktop/ttc-keypair.pem ubuntu@<your-ec2-ip>
+```
+
+## STEP 3: Install Docker and Docker Compose (on EC2)
+```bash
+# Install Docker
+sudo apt update
+sudo apt install docker.io -y
+sudo systemctl start docker
+sudo systemctl enable docker
+
+# Install Docker Compose
+sudo curl -L "https://github.com/docker/compose/releases/download/v2.23.3/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+docker-compose --version
+```
+
+## STEP 4: Upload Your Project to EC2
+From your Mac:
+```bash
+scp -i /Users/alanhu/Desktop/ttc-keypair.pem -r "/Users/alanhu/Desktop/Transit Delay Alert System" ubuntu@<your-ec2-ip>:~/
+```
+
+## STEP 5: Inside EC2 - Navigate to Your Project
+```bash
+cd "Transit Delay Alert System"
+ls
+```
+
+## STEP 6: Create Your .env File
+Create a `.env` file with your Twilio and MongoDB settings:
+```env
+MONGODB=mongodb://mongo:27017/
+TWILIO_SID=your_twilio_sid
+TWILIO_TOKEN=your_twilio_token
+TWILIO_PHONE=+1xxxxxxxxxx
+```
+
+## STEP 7: Run Docker Compose
+```bash
+sudo docker-compose up --build -d
+```
+
+## STEP 8: Install Ngrok (on EC2)
+```bash
+wget https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-stable-linux-amd64.zip
+unzip ngrok-stable-linux-amd64.zip
+sudo mv ngrok /usr/local/bin
+```
+
+## STEP 9: Start Ngrok
+```bash
+ngrok config add-authtoken <your-ngrok-auth-token>
+ngrok http 4000
+```
+
+## STEP 10: Connect Ngrok to Twilio
+- Copy the `https://xyz.ngrok.io` URL
+- Go to Twilio Console → Active Numbers → Configure Webhook:
+  - Set the webhook to: `https://xyz.ngrok.io/sms` (or your Flask route)
+
+# ✅ Your TTC backend is now live and cloud-hosted!

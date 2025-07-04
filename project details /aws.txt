@@ -1,0 +1,6 @@
+Created Instance
+
+Create pem file 
+
+chmod 400 /Users/alanhu/Desktop/[name of pem file].pem
+ssh -i /Users/alanhu/Desktop/[name of pem file].pem ubuntu@[public IP]
