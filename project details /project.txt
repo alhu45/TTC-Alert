@@ -42,10 +42,10 @@ Currently:
 2. Create Topics
 3. Fetch data from GTFS TTC API
 4. Collect data from alerts and send to the consumer
-5. Sent to MONGODB: https://cloud.mongodb.com/v2/683dea16e85bc662df18b1b4#/metrics/replicaSet/683df8646d20906619e161f9/explorer
+5. Sent to MONGODB
 6. Automatic new alerts every 10 seconds to see for new updates, deletes any old entires older than 10 seconds
-7. Use Twillio to send SMS Notifcaiton: https://console.twilio.com/us1/develop/phone-numbers/manage/incoming
-8. ngrok for backend to send message when "alert" is texted: https://dashboard.ngrok.com/get-started/your-authtoken
+7. Use Twillio to send SMS Notifcaiton
+8. ngrok for backend to send message when "alert" is texted
 9. Use Docker to containerize 
 
 TO DO:
