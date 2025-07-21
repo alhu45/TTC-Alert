@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment  
+metadata:
+  name: etl
+spec:
+  replicas: 1
+  selector:  
+    matchLabels:
+      app: etl
+  template:
+    metadata:
+      labels:
+        app: etl  
+    spec:  
+      containers:
+        - name: etl
+          image: alhu45/etl:latest
+          ports: 
+            - containerPort: 5000
+          envFrom:
+            - configMapRef:
+                name: etl-config
+            - secretRef:
+                name: etl-secrets

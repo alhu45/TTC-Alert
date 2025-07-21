@@ -37,6 +37,15 @@ The Port for Kafka Ports:
 Think of 9092 as the front desk at an office — where clients walk in, ask questions, and drop off data.
 Think of 9093 as the server room at the back — where internal staff coordinate schedules, update records, and make sure everything is running.
 
+✅ Docker = one containerized app
+✅ Kubernetes = manage many containerized apps
+✅ Terraform = define and manage the entire system around them as code
+
+Summary of what all the tools do:
+GitHub allows the cycle to stay alive when things change, terraform allows the infrasture to be 
+managed without breaking anyting, and kuberenetes and docker work together to keep the 
+app running (on an aws server or cloud server)
+
 Currently:
 1. Manually run kafka server
 2. Create Topics
@@ -47,8 +56,10 @@ Currently:
 7. Use Twillio to send SMS Notifcaiton
 8. ngrok for backend to send message when "alert" is texted
 9. Use Docker to containerize 
+10. AWS for backend server
+11. Kubernetes for SMS Server and main ETL pipeline
 
 TO DO:
-AWS for backend server
-Kubernete
 Terraform on Everyting
+Github Actions 
+

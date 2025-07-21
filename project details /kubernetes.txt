@@ -1,0 +1,49 @@
+Docker is used to containerize the app
+Kubernetes is used to deploy the containerize app
+
+You need a YAML file for everything you want Kubernetes to manager
+For the YAML file, there is two componets:
+Deployment: Tells Kubernetes how to run your container (how many copies, which image, what env vars, etc.)
+Service: Exposes the container inside or outside the cluster (so other services or users can reach it)
+
+You need to then tag the image from Docker, giving it a new name (or label) so Docker can reference it differently.
+
+For example: docker tag transitdelayalertsystem-sms_server:latest alhu45/sms-server:latest
+transitdelayalertsystem-sms_server:latest is your local build
+alhu45/sms-server:latest is how Docker Hub expects you to name images under your account
+
+Afterwards, you push it onto Docker. 
+docker push alhu45/sms-server:latest
+
+Then you push the deployments and service files:
+kubectl apply -f k8s/deployments/etl.yaml
+kubectl apply -f k8s/services/etl_service.yaml
+
+
+And check if they are running with:
+kubectl get pods
+kubectl get svc
+
+You also need these files
+
+| File               | What it does                      | Where to put it                 |
+| ------------------ | --------------------------------- | ------------------------------- |
+| `sms-config.yaml`  | (Non-sensitive)                   | Same folder as your other YAMLs |
+| `sms-secrets.yaml` | (Sensitive)                       | Same folder as your other YAMLs |
+
+conf
+kubectl apply -f k8s/sms-config.yaml
+kubectl apply -f k8s/sms-secrets.yaml
+
+Rebuild images and restart Kubernetes if changes are made:
+docker build -t alhu45/etl:latest .
+docker push alhu45/etl:latest
+kubectl rollout restart deployment etl
+kubectl get pods
+
+So what do you add to Kubernetes?
+In Kubernetes, you define and deploy anything that can crash, scale, or needs to be updated using YAML so that:
+- Auto-restart if it crashes
+- Scale it up/down based on load
+- Roll out updates with zero downtime
+- Maintain the desired state even if something goes wrong

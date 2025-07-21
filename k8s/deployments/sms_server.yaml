@@ -1,0 +1,24 @@
+apiVersion: apps/v1 # Version of Kubernetes
+kind: Deployment
+metadata:
+  name: sms-server
+spec:
+  replicas: 1  # Run 1 copy of this container
+  selector: 
+    matchLabels: # Labels that help K8s group pods and services
+      app: sms-server
+  template:
+    metadata:
+      labels:
+        app: sms-server
+    spec: # Container Section
+      containers:
+        - name: sms-server
+          image: alhu45/sms-server:latest # Docker Image
+          ports:
+            - containerPort: 4000  # Flask app port
+          envFrom:
+            - configMapRef:
+                name: sms-config
+            - secretRef:
+                name: sms-secrets

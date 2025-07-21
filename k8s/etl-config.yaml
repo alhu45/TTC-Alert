@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: etl-config
+data:
+  TWILIO_NUMBER: "+14389007415"
+  TARGET_PHONE: "+14168595596"
