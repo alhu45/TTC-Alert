@@ -1,2 +1,2 @@
 .env
-k8s/etl-secrets.yaml
+k8s/secrets
