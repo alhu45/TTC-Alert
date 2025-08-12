@@ -1,11 +1,9 @@
+# Tells Terraform, to talk to local kubeconfig file
 provider "kubernetes" {
   config_path = "~/.kube/config"
 }
 
-##########################
 # SMS Server Deployment
-##########################
-
 resource "kubernetes_deployment" "sms_server" {
   metadata {
     name = "sms-server"
@@ -75,10 +73,7 @@ resource "kubernetes_service" "sms_server" {
   }
 }
 
-##########################
 # ETL Deployment
-##########################
-
 resource "kubernetes_deployment" "etl" {
   metadata {
     name = "etl"
@@ -178,10 +173,7 @@ resource "kubernetes_config_map" "etl_config" {
   }
 }
 
-##########################
 # Secrets
-##########################
-
 resource "kubernetes_secret" "sms_secrets" {
   metadata {
     name = "sms-secrets"

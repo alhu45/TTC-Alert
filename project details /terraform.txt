@@ -1,0 +1,48 @@
+Terraform modules are basically reusable blueprints for infrastructure.
+Think of them like functions in code, but instead of returning a number or a string, they “return” infrastructure.
+
+If you want 5 Kubernetes deployments that are almost identical except for the name/image, you end up copy-pasting the same resource block 5 times.
+With modules:
+You write the config once in a module/ folder, then “call” it with different variables for each service.
+
+Using modules in this project would look like this:
+
+module "sms_server" {
+  source         = "./modules/k8s_service"
+  app_name       = "sms-server"
+  image          = "alhu45/sms-server:latest"
+  container_port = 4000
+  replicas       = 1
+  config_vars = {
+    FLASK_ENV     = "production"
+    TWILIO_NUMBER = var.twilio_number
+    TARGET_PHONE  = var.target_phone
+  }
+  secret_vars = {
+    TWILIO_SID    = var.twilio_sid
+    TWILIO_TOKEN  = var.twilio_token
+    TWILLIO_OTHER = var.twilio_other
+  }
+}
+
+module "etl" {
+  source         = "./modules/k8s_service"
+  app_name       = "etl"
+  image          = "alhu45/etl:latest"
+  container_port = 5000
+  replicas       = 1
+  config_vars = {
+    FLASK_ENV               = "production"
+    KAFKA_BOOTSTRAP_SERVERS = "kafka:9092"
+    MONGO_URI               = "mongodb://mongo:27017"
+    TWILIO_NUMBER           = var.twilio_number
+    TARGET_PHONE            = var.target_phone
+  }
+  secret_vars = {
+    TRANSIT_API   = var.transit_api
+    MONGODB       = var.mongodb_uri
+    TWILIO_SID    = var.twilio_sid
+    TWILIO_TOKEN  = var.twilio_token
+    TWILLIO_OTHER = var.twilio_other
+  }
+}
