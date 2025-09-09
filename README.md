@@ -11,5 +11,6 @@ This project is a real-time ETL pipeline that consumes GTFS-RT (General Transit 
 - **Twilio SMS Alerts:** Automatically sends real-time delay alerts to subscribed users.
 - **Dockerized Architecture:** Easily deployable with Docker Compose.
 - **Hosted on AWS EC2:** Cloud-hosted for scalability and availability.
+- **Kubernetes**
 
 
