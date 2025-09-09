@@ -12,5 +12,6 @@ This project is a real-time ETL pipeline that consumes GTFS-RT (General Transit 
 - **Dockerized Architecture:** Easily deployable with Docker Compose.
 - **Hosted on AWS EC2:** Cloud-hosted for scalability and availability.
 - **Kubernetes**
+- **Terraform**
 
 
